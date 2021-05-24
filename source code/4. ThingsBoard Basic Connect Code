@@ -1,0 +1,119 @@
+/*
+GIPE 2021 Smart Farming IoT Code
+==================================
+Parts :
+- ESP 32
+- DHT 11
+- LDR
+- Soil Moisture Sensor
+
+==================================
+Made by:
+GIPE 2021 Scholars
+*/
+
+#include "ThingsBoard.h"
+#include <ESP8266WiFi.h>
+#define WIFI_AP             "YOUR_WIFI_AP" //PUSPANITA AP
+#define WIFI_PASSWORD       "YOUR_WIFI_PASSWORD" //Password
+#define TOKEN               "YOUR_ACCESS_TOKEN" //Token only for 1 Node, so there are 4 token for 4 nodes
+#define THINGSBOARD_SERVER  "demo.thingsboard.io" //This will be changed?
+
+// Baud rate for debug serial
+#define SERIAL_DEBUG_BAUD   115200
+
+// Initialize ThingsBoard client
+WiFiClient espClient;
+// Initialize ThingsBoard instance
+ThingsBoard tb(espClient);
+// the Wifi radio's status
+int status = WL_IDLE_STATUS;
+
+//insert DHT 11 code here
+//.....
+
+//insert Soil Moisture code here
+//.....
+
+//inser LDR code here
+//.....
+
+void setup() {
+  // initialize serial for debugging
+  Serial.begin(SERIAL_DEBUG_BAUD);
+  WiFi.begin(WIFI_AP, WIFI_PASSWORD);
+  InitWiFi();
+
+//insert DHT 11 code here
+//.....
+
+//insert Soil Moisture code here
+//.....
+
+//insert LDR code here
+//.....
+
+}
+
+void loop() {
+  delay(1000);
+
+  if (WiFi.status() != WL_CONNECTED) {
+    reconnect();
+  }
+
+  if (!tb.connected()) {
+    // Connect to the ThingsBoard
+    Serial.print("Connecting to: ");
+    Serial.print(THINGSBOARD_SERVER);
+    Serial.print(" with token ");
+    Serial.println(TOKEN);
+    if (!tb.connect(THINGSBOARD_SERVER, TOKEN)) {
+      Serial.println("Failed to connect");
+      return;
+    }
+  }
+
+  Serial.println("Sending data...");
+
+//insert DHT 11 code here
+//.....
+  tb.sendTelemetryInt("temperature", 22); //change 22 and 42.5 to sensor reading
+  tb.sendTelemetryFloat("humidity", 42.5);
+
+//insert Soil Moisture code here
+//.....
+  tb.sendTelemetryFloat("Moisture", 42.5); //change 22 and 42.5 to sensor reading
+
+//inser LDR code here
+//.....
+  tb.sendTelemetryInt("Light", 22); //change 22 and 42.5 to sensor reading
+
+  tb.loop();
+}
+
+void InitWiFi()
+{
+  Serial.println("Connecting to AP ...");
+  // attempt to connect to WiFi network
+
+  WiFi.begin(WIFI_AP, WIFI_PASSWORD);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("Connected to AP");
+}
+
+void reconnect() {
+  // Loop until we're reconnected
+  status = WiFi.status();
+  if ( status != WL_CONNECTED) {
+    WiFi.begin(WIFI_AP, WIFI_PASSWORD);
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(500);
+      Serial.print(".");
+    }
+    Serial.println("Connected to AP");
+  }
+}
